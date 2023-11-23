@@ -10,14 +10,14 @@ public interface CourseRepository {
 
     List<Course> findAll();
 
+    List<Course> findAllByStatusAndTeacherId(String status, String teacherId);
+
+    List<Course> findAllByStatus(String status);
+
     void deleteById(String id);
 
     Course save(Course course);
 
-    List<Course> findByStatusAndTeacherId(String status, String  teacherId);
-
-    List<Course> findByStatus(String status);
-
-    List<Course> findByTeacherId(String teacherId);
+    List<Course> findAllByTeacherId(String teacherId);
 }
 
