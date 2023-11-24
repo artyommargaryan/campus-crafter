@@ -1,5 +1,6 @@
 package com.inter.campuscrafter.repositories.interfaces;
 
+import com.inter.campuscrafter.entities.Student;
 import com.inter.campuscrafter.entities.UserProfile;
 
 import java.util.List;
@@ -11,4 +12,7 @@ public interface UserRepository {
     void deleteById(String id);
 
     UserProfile save(UserProfile userProfile);
+
+    Optional<UserProfile> findByEmail(String username);
+    Optional<Student> findStudentById(String id);
 }

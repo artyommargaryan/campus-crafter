@@ -11,5 +11,7 @@ public interface AssignmentRepository {
     void deleteById(String id);
 
     Assignment save(Assignment assignment);
-    List<Assignment> findByCourseId(String courseId);
+    List<Assignment> findAllByCourseId(String courseId);
+
+    void deleteAllByCourseId(String courseId);
 }

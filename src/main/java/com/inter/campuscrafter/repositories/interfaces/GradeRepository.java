@@ -1,7 +1,6 @@
 package com.inter.campuscrafter.repositories.interfaces;
 
 import com.inter.campuscrafter.entities.Grade;
-import com.inter.campuscrafter.entities.Grade;
 
 import java.util.List;
 import java.util.Optional;
