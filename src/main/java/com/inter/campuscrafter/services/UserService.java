@@ -9,9 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+@Validated
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -56,6 +59,7 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
+        newUser.setDateJoined(LocalDateTime.now());
         return userRepository.save(newUser);
     }
 
@@ -72,6 +76,10 @@ public class UserService {
                 )
         );
 
-        return userRepository.findByEmail(loginUser.getEmail()).orElseThrow(() ->  new UserNotFoundException("User not found for login"));
+        return userRepository.findByEmail(loginUser.getEmail()).map(user -> {
+                    user.setLastLogin(LocalDateTime.now());
+                    return userRepository.save(user);
+                })
+                .orElseThrow(() -> new UserNotFoundException("User not found for login"));
     }
 }

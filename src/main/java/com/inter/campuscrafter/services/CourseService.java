@@ -7,10 +7,12 @@ import com.inter.campuscrafter.repositories.interfaces.CourseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Optional;
 
+@Validated
 @Service
 @RequiredArgsConstructor
 public class CourseService {

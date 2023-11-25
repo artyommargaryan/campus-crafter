@@ -5,7 +5,11 @@ import com.inter.campuscrafter.entities.User;
 import com.inter.campuscrafter.entities.UserRole;
 import com.inter.campuscrafter.services.GradeService;
 import com.inter.campuscrafter.services.UserService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/users")
-@Api(tags = "User Management", value = "User Controller")
+@Tag(name = "User Management", description = "User Controller")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
@@ -24,15 +28,14 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
 
     @GetMapping("/{userId}")
-    @ApiOperation(value = "Get User Profile", notes = "Fetches the profile of a specific user. Accessible by the user themselves and admins.")
+    @Operation(description = "Fetches the profile of a specific user. Accessible by the user themselves and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved user profile"),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 403, message = "Forbidden - User not authorized to view this profile")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved user profile"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to view this profile")
     })
     @PreAuthorize("#userId == principal.username or hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserDto> getUserProfile(@ApiParam(value = "Unique ID of the user", required = true)
-                                                  @PathVariable String userId) {
+    public ResponseEntity<UserDto> getUserProfile(@PathVariable String userId) {
         User user = userService.getUserById(userId);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -42,17 +45,15 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    @ApiOperation(value = "Update User Profile", notes = "Updates the profile for a specific user. Accessible by the user themselves and admins.")
+    @Operation(description = "Updates the profile for a specific user. Accessible by the user themselves and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User profile updated successfully"),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 403, message = "Forbidden - User not authorized to update this profile")
+            @ApiResponse(responseCode = "200", description = "User profile updated successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to update this profile")
     })
     @PreAuthorize("#userId == principal.username or hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserDto> updateUserProfile(@ApiParam(value = "Unique ID of the user", required = true)
-                                                     @PathVariable String userId,
-                                                     @ApiParam(value = "Updated user data", required = true)
-                                                     @RequestBody UserDto userDto) {
+    public ResponseEntity<UserDto> updateUserProfile(@PathVariable String userId,
+                                                     @RequestBody @Valid UserDto userDto) {
         User user = mapUserDtoToUser(userDto);
         User updatedUser = userService.updateUser(userId, user);
         if (user == null) {
@@ -63,15 +64,14 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    @ApiOperation(value = "Delete User", notes = "Deletes a specific user profile. Accessible by admins only.")
+    @Operation(description = "Deletes a specific user profile. Accessible by admins only.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User deleted successfully"),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 403, message = "Forbidden - Only admins can delete users")
+            @ApiResponse(responseCode = "200", description = "User deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Only admins can delete users")
     })
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteUser(@ApiParam(value = "Unique ID of the user to delete", required = true)
-                                           @PathVariable String userId) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String userId) {
         User userById = userService.getUserById(userId);
         userService.deleteUser(userId);
         if (userById.hasRole(UserRole.STUDENT)) {

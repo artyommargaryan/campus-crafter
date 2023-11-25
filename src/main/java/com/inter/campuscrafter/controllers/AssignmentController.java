@@ -8,7 +8,11 @@ import com.inter.campuscrafter.exceptions.CourseNotFoundException;
 import com.inter.campuscrafter.services.AssignmentService;
 import com.inter.campuscrafter.services.CourseService;
 import com.inter.campuscrafter.services.UserService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -23,7 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@Api(tags = "Assignment Management", value = "Assignment Controller")
+@Tag(name = "Assignment Management", description = "Assignment Controller")
 public class AssignmentController {
     private final AssignmentService assignmentService;
     private final CourseService courseService;
@@ -31,16 +35,15 @@ public class AssignmentController {
     private final UserService userService;
 
     @GetMapping("/courses/{courseId}/assignments")
-    @ApiOperation(value = "Get all assignments for a specific course", notes = "Fetches all assignments based on the provided course ID. Accessible by students, teachers, and admins.")
+    @Operation(description = "Fetches all assignments based on the provided course ID. Accessible by students, teachers, and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved the list of assignments"),
-            @ApiResponse(code = 401, message = "Unauthorized access"),
-            @ApiResponse(code = 403, message = "Access forbidden"),
-            @ApiResponse(code = 404, message = "Course not found")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of assignments"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "403", description = "Access forbidden"),
+            @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-    public ResponseEntity<List<AssignmentDto>> getAllAssignmentsByCourseId(@ApiParam(value = "Unique ID of the course", required = true)
-                                                                           @PathVariable String courseId,
+    public ResponseEntity<List<AssignmentDto>> getAllAssignmentsByCourseId(@PathVariable String courseId,
                                                                            Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
         if (!principal.hasRole(UserRole.STUDENT) && !userService.enrolledInCourse(principal.getId(), courseId)) {
@@ -52,18 +55,16 @@ public class AssignmentController {
     }
 
     @PostMapping("/courses/{courseId}/assignments")
-    @ApiOperation(value = "Create an assignment for a course", notes = "Creates a new assignment for the specified course. Accessible by teachers and admins.")
+    @Operation(description = "Creates a new assignment for the specified course. Accessible by teachers and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Assignment created successfully"),
-            @ApiResponse(code = 401, message = "Unauthorized access"),
-            @ApiResponse(code = 403, message = "Forbidden access"),
-            @ApiResponse(code = 404, message = "Course not found")
+            @ApiResponse(responseCode = "201", description = "Assignment created successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "403", description = "Forbidden access"),
+            @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<AssignmentDto> getAllAssignmentsByCourseId(@ApiParam(value = "Unique ID of the course", required = true)
-                                                                     @PathVariable String courseId,
-                                                                     @ApiParam(value = "Assignment data to create", required = true)
-                                                                     @RequestBody AssignmentDto assignmentDto,
+    public ResponseEntity<AssignmentDto> getAllAssignmentsByCourseId(@PathVariable String courseId,
+                                                                     @RequestBody @Valid AssignmentDto assignmentDto,
                                                                      Authentication authentication) {
         if (!courseService.courseExists(courseId)) {
             throw new CourseNotFoundException("Course " + courseId + " not found");
@@ -77,18 +78,16 @@ public class AssignmentController {
     }
 
     @PutMapping("/assignments/{id}")
-    @ApiOperation(value = "Update an assignment", notes = "Updates the assignment specified by ID. Accessible by the teacher who created the assignment and admins.")
+    @Operation(description = "Updates the assignment specified by ID. Accessible by the teacher who created the assignment and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Assignment updated successfully"),
-            @ApiResponse(code = 401, message = "Unauthorized access"),
-            @ApiResponse(code = 403, message = "Forbidden access"),
-            @ApiResponse(code = 404, message = "Assignment not found")
+            @ApiResponse(responseCode = "200", description = "Assignment updated successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "403", description = "Forbidden access"),
+            @ApiResponse(responseCode = "404", description = "Assignment not found")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<AssignmentDto> updateAssignmentById(@ApiParam(value = "Unique ID of the assignment", required = true)
-                                                              @PathVariable String id,
-                                                              @ApiParam(value = "Updated assignment data", required = true)
-                                                              @RequestBody AssignmentDto assignmentDto,
+    public ResponseEntity<AssignmentDto> updateAssignmentById(@PathVariable String id,
+                                                              @RequestBody @Valid AssignmentDto assignmentDto,
                                                               Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
         courseService.isAuthorized(assignmentDto.getCourseId(), principal, "Not authorized to update assignment for this course.");
@@ -104,16 +103,15 @@ public class AssignmentController {
     }
 
     @DeleteMapping("/assignments/{id}")
-    @ApiOperation(value = "Delete an assignment", notes = "Deletes the assignment specified by ID. Accessible by the teacher who created the assignment and admins.")
+    @Operation(description = "Deletes the assignment specified by ID. Accessible by the teacher who created the assignment and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Assignment deleted successfully"),
-            @ApiResponse(code = 401, message = "Unauthorized access"),
-            @ApiResponse(code = 403, message = "Forbidden access"),
-            @ApiResponse(code = 404, message = "Assignment not found")
+            @ApiResponse(responseCode = "200", description = "Assignment deleted successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access"),
+            @ApiResponse(responseCode = "403", description = "Forbidden access"),
+            @ApiResponse(responseCode = "404", description = "Assignment not found")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteAssignmentById(@ApiParam(value = "Unique ID of the assignment", required = true)
-                                                     @PathVariable String id) {
+    public ResponseEntity<Void> deleteAssignmentById(@PathVariable String id) {
         assignmentService.deleteAssignmentById(id);
         return ResponseEntity.ok().build();
     }

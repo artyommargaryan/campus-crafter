@@ -7,7 +7,11 @@ import com.inter.campuscrafter.entities.User;
 import com.inter.campuscrafter.responses.LoginResponse;
 import com.inter.campuscrafter.services.JwtService;
 import com.inter.campuscrafter.services.UserService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -21,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
-@Api(tags = "Authentication", value = "Auth Controller")
+@Tag(name = "Authentication", description = "Auth Controller")
 @RequiredArgsConstructor
 public class AuthController {
     private final JwtService jwtService;
@@ -30,15 +34,14 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    @ApiOperation(value = "Register a new user", notes = "Allows admin to create a new user account. Requires admin role.")
+    @Operation(description = "Allows admin to create a new user account. Requires admin role.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "User registered successfully"),
-            @ApiResponse(code = 400, message = "Bad Request"),
-            @ApiResponse(code = 403, message = "Forbidden - Only admins can register new users")
+            @ApiResponse(responseCode = "201", description = "User registered successfully"),
+            @ApiResponse(responseCode = "400", description = "Bad Request"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - Only admins can register new users")
     })
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserDto> registerUser(@ApiParam(value = "User registration data", required = true)
-                                                @RequestBody RegisterUserDto newUserDto) {
+    public ResponseEntity<UserDto> registerUser(@RequestBody @Valid RegisterUserDto newUserDto) {
         User newUser = mapRegisterUserDtoToUser(newUserDto);
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword())); // Encode the password
         User createdUser = userService.createUser(newUser);
@@ -47,13 +50,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @ApiOperation(value = "Authenticate user and return JWT", notes = "Authenticates the user's credentials and returns a JWT token upon successful login.")
+    @Operation(description = "Authenticates the user's credentials and returns a JWT token upon successful login.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User authenticated successfully"),
-            @ApiResponse(code = 401, message = "Unauthorized - Invalid credentials")
-    })
-    public ResponseEntity<LoginResponse> authenticate(@ApiParam(value = "User login data", required = true)
-                                                      @RequestBody LoginUserDto loginUserDto) {
+            @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials")})
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody @Valid LoginUserDto loginUserDto) {
         User loginUser = mapLoginUserDtoToUser(loginUserDto);
         User authenticatedUser = userService.authenticate(loginUser);
 

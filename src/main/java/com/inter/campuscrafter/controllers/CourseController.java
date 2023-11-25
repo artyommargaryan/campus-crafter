@@ -5,7 +5,11 @@ import com.inter.campuscrafter.entities.Course;
 import com.inter.campuscrafter.entities.User;
 import com.inter.campuscrafter.services.AssignmentService;
 import com.inter.campuscrafter.services.CourseService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -19,7 +23,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/courses")
-@Api(tags = "Course Management", value = "Course Controller")
+@Tag(name = "Course Management", description = "Course Controller")
 @RequiredArgsConstructor
 public class CourseController {
     private final CourseService courseService;
@@ -27,15 +31,13 @@ public class CourseController {
     private final ModelMapper modelMapper;
 
     @GetMapping
-    @ApiOperation(value = "Get all courses", notes = "Retrieves a list of all courses with optional filters for status and teacher ID. Accessible by students, teachers, and admins.")
+    @Operation(description = "Retrieves a list of all courses with optional filters for status and teacher ID. Accessible by students, teachers, and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved the list of courses"),
-            @ApiResponse(code = 401, message = "Unauthorized access")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the list of courses"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access")
     })
     @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-    public ResponseEntity<List<CourseDto>> getAllCourses(@ApiParam(value = "Filter by course status")
-                                                         @RequestParam(required = false) String status,
-                                                         @ApiParam(value = "Filter by teacher ID")
+    public ResponseEntity<List<CourseDto>> getAllCourses(@RequestParam(required = false) String status,
                                                          @RequestParam(required = false) String teacherId) {
         List<Course> courses = courseService.getAllCourses(Optional.ofNullable(status),
                 Optional.ofNullable(teacherId));
@@ -44,14 +46,13 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation(value = "Get a specific course", notes = "Retrieves detailed information about a specific course. Accessible by students, teachers, and admins.")
+    @Operation(description = "Retrieves detailed information about a specific course. Accessible by students, teachers, and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successfully retrieved course details"),
-            @ApiResponse(code = 404, message = "Course not found")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved course details"),
+            @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-    public ResponseEntity<CourseDto> getCourseById(@ApiParam(value = "Unique ID of the course", required = true)
-                                                   @PathVariable String id) {
+    public ResponseEntity<CourseDto> getCourseById(@PathVariable String id) {
         Course courseById = courseService.getCourseById(id);
 
         if (courseById == null) {
@@ -64,14 +65,13 @@ public class CourseController {
     }
 
     @PostMapping
-    @ApiOperation(value = "Create a course", notes = "Creates a new course. Accessible by teachers and admins.")
+    @Operation(description = "Creates a new course. Accessible by teachers and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Course created successfully"),
-            @ApiResponse(code = 401, message = "Unauthorized access")
+            @ApiResponse(responseCode = "201", description = "Course created successfully"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized access")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<CourseDto> createCourse(@ApiParam(value = "Course data to create", required = true)
-                                                  @RequestBody CourseDto courseDto,
+    public ResponseEntity<CourseDto> createCourse(@RequestBody @Valid CourseDto courseDto,
                                                   Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
         Course course = mapCourseDtoToCourse(courseDto);
@@ -81,16 +81,14 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    @ApiOperation(value = "Update a course", notes = "Updates the course specified by ID. Accessible by the teacher who created the course and admins.")
+    @Operation(description = "Updates the course specified by ID. Accessible by the teacher who created the course and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Course updated successfully"),
-            @ApiResponse(code = 404, message = "Course not found")
+            @ApiResponse(responseCode = "200", description = "Course updated successfully"),
+            @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<CourseDto> getCourseById(@ApiParam(value = "Unique ID of the course", required = true)
-                                                   @PathVariable String id,
-                                                   @ApiParam(value = "Updated course data", required = true)
-                                                   @RequestBody CourseDto updatedCourseDto,
+    public ResponseEntity<CourseDto> getCourseById(@PathVariable String id,
+                                                   @RequestBody @Valid CourseDto updatedCourseDto,
                                                    Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
         Course course = mapCourseDtoToCourse(updatedCourseDto);
@@ -106,14 +104,13 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
-    @ApiOperation(value = "Delete a course", notes = "Deletes the course specified by ID. Accessible by the teacher who created the course and admins.")
+    @Operation(description = "Deletes the course specified by ID. Accessible by the teacher who created the course and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Course deleted successfully"),
-            @ApiResponse(code = 404, message = "Course not found")
+            @ApiResponse(responseCode = "200", description = "Course deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "Course not found")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCourse(@ApiParam(value = "Unique ID of the course to delete", required = true)
-                                             @PathVariable String id,
+    public ResponseEntity<Void> deleteCourse(@PathVariable String id,
                                              Authentication authentication) {
         User principal = (User) authentication.getPrincipal();
         courseService.deleteCourse(id, principal);

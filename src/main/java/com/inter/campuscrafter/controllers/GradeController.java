@@ -10,7 +10,11 @@ import com.inter.campuscrafter.services.AssignmentService;
 import com.inter.campuscrafter.services.CourseService;
 import com.inter.campuscrafter.services.GradeService;
 import com.inter.campuscrafter.services.UserService;
-import io.swagger.annotations.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -26,7 +30,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
-@Api(tags = "Grade Management", value = "Grade Controller")
+@Tag(name = "Grade Management", description = "Grade Controller")
 @RequiredArgsConstructor
 public class GradeController {
     private final GradeService gradeService;
@@ -36,17 +40,15 @@ public class GradeController {
     private final ModelMapper modelMapper;
 
     @PostMapping("/assignments/{assignmentId}/grades")
-    @ApiOperation(value = "Submit a grade for an assignment", notes = "Allows teachers or admins to submit grades for a specific assignment.")
+    @Operation(description = "Allows teachers or admins to submit grades for a specific assignment.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Grade submitted successfully"),
-            @ApiResponse(code = 404, message = "Assignment not found"),
-            @ApiResponse(code = 403, message = "Forbidden - User not authorized to submit grade for this assignment")
+            @ApiResponse(responseCode = "201", description = "Grade submitted successfully"),
+            @ApiResponse(responseCode = "404", description = "Assignment not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to submit grade for this assignment")
     })
     @PreAuthorize("hasRole('TEACHER') or hasRole('ADMIN')")
-    public ResponseEntity<GradeDto> getGrade(@ApiParam(value = "ID of the assignment to grade", required = true)
-                                             @PathVariable String assignmentId,
-                                             @ApiParam(value = "Grade details", required = true)
-                                             GradeDto gradeDto,
+    public ResponseEntity<GradeDto> getGrade(@PathVariable String assignmentId,
+                                             @Valid GradeDto gradeDto,
                                              Authentication authentication) {
         if (!assignmentService.assignmentExists(assignmentId)) {
             throw new AssignmentNotFoundException("Assignment " + assignmentId + " not found");
@@ -62,15 +64,14 @@ public class GradeController {
     }
 
     @GetMapping("/students/{studentId}/grades")
-    @ApiOperation(value = "Get all grades for a student", notes = "Retrieves all grades for a specified student. Accessible by students for their own grades, teachers for students in their courses, and admins.")
+    @Operation(description = "Retrieves all grades for a specified student. Accessible by students for their own grades, teachers for students in their courses, and admins.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Grades retrieved successfully"),
-            @ApiResponse(code = 404, message = "Student not found"),
-            @ApiResponse(code = 403, message = "Forbidden - User not authorized to view these grades")
+            @ApiResponse(responseCode = "200", description = "Grades retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Student not found"),
+            @ApiResponse(responseCode = "403", description = "Forbidden - User not authorized to view these grades")
     })
     @PreAuthorize("hasAnyRole('STUDENT', 'TEACHER', 'ADMIN')")
-    public ResponseEntity<List<GradeDto>> getAllGradesByStudentId(@ApiParam(value = "ID of the student", required = true)
-                                                                  @PathVariable String studentId,
+    public ResponseEntity<List<GradeDto>> getAllGradesByStudentId(@PathVariable String studentId,
                                                                   Authentication authentication) {
         if (!userService.userExists(studentId)) {
             throw new UserNotFoundException("Student " + studentId + "not found");
