@@ -16,7 +16,7 @@ import java.util.List;
 @Document(collection = "user_profiles")
 @Data
 @NoArgsConstructor
-public class UserProfile implements UserDetails {
+public class User implements UserDetails {
     @Id
     private String id;
     private String name;
@@ -25,10 +25,9 @@ public class UserProfile implements UserDetails {
     private UserRole userRole;
     private LocalDateTime dateJoined;
     private LocalDateTime lastLogin;
-    private String profilePicture;
     private String bio;
 
-    protected UserProfile(UserRole userRole) {
+    protected User(UserRole userRole) {
         this.userRole = userRole;
     }
 

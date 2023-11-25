@@ -1,7 +1,7 @@
 package com.inter.campuscrafter.services;
 
 import com.inter.campuscrafter.entities.Course;
-import com.inter.campuscrafter.entities.UserProfile;
+import com.inter.campuscrafter.entities.User;
 import com.inter.campuscrafter.entities.UserRole;
 import com.inter.campuscrafter.repositories.interfaces.CourseRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,18 +38,18 @@ public class CourseService {
         return allCourses.orElse(null);
     }
 
-    public Course createCourse(Course course, UserProfile userProfile) {
-        if (userProfile.hasRole(UserRole.TEACHER)) {
-            course.setTeacherId(userProfile.getId());
+    public Course createCourse(Course course, User user) {
+        if (user.hasRole(UserRole.TEACHER)) {
+            course.setTeacherId(user.getId());
         }
         return courseRepository.save(course);
     }
 
-    public Course updateCourseById(String id, Course updatedCourse, UserProfile userProfile) {
+    public Course updateCourseById(String id, Course updatedCourse, User user) {
         Optional<Course> courseById = courseRepository.findById(id);
 
         return courseById.map(course -> {
-                    isAuthorized(updatedCourse, userProfile, "Not authorized to update this course.");
+                    isAuthorized(updatedCourse, user, "Not authorized to update this course.");
 
                     course.setTitle(updatedCourse.getTitle());
                     course.setDescription(updatedCourse.getDescription());
@@ -64,24 +64,24 @@ public class CourseService {
         ).orElse(null);
     }
 
-    void isAuthorized(Course updatedCourse, UserProfile userProfile, String message) {
-        if (!updatedCourse.getTeacherId().equals(userProfile.getId()) && !userProfile.hasRole(UserRole.ADMIN)) {
+    void isAuthorized(Course updatedCourse, User user, String message) {
+        if (!updatedCourse.getTeacherId().equals(user.getId()) && !user.hasRole(UserRole.ADMIN)) {
             throw new AccessDeniedException(message);
         }
     }
 
-    public void isAuthorized(String courseId, UserProfile userProfile, String message) {
+    public void isAuthorized(String courseId, User user, String message) {
         courseRepository.findById(courseId).ifPresent(updatedCourse -> {
-            if (!updatedCourse.getTeacherId().equals(userProfile.getId()) && !userProfile.hasRole(UserRole.ADMIN)) {
+            if (!updatedCourse.getTeacherId().equals(user.getId()) && !user.hasRole(UserRole.ADMIN)) {
                 throw new AccessDeniedException(message);
             }
         });
     }
 
-    public void deleteCourse(String id, UserProfile userProfile) {
+    public void deleteCourse(String id, User user) {
         Optional<Course> courseById = courseRepository.findById(id);
         courseById.ifPresent(course -> {
-            isAuthorized(course, userProfile, "Not authorized to update this course.");
+            isAuthorized(course, user, "Not authorized to update this course.");
             courseRepository.deleteById(id);
         });
     }

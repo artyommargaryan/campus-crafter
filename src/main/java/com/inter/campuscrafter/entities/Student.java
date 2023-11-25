@@ -8,7 +8,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class Student extends UserProfile{
+public class Student extends User {
     List<String> courseIds;
     public Student() {
         super(UserRole.STUDENT);

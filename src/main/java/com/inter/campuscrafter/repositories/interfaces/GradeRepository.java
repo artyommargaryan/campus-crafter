@@ -17,4 +17,6 @@ public interface GradeRepository {
     List<Grade> findByAssignmentId(String assignmentId);
 
     List<Grade> findByStudentId(String studentId);
+
+    void deleteAllByStudentId(String studentId);
 }

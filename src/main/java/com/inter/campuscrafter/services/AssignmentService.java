@@ -45,4 +45,13 @@ public class AssignmentService {
     public void deleteAllByCourseId(String courseId) {
         assignmentRepository.deleteAllByCourseId(courseId);
     }
+
+
+    public boolean assignmentExists(String assignmentId) {
+        return assignmentRepository.findById(assignmentId).isPresent();
+    }
+
+    public Assignment getAssignmentById(String assignmentId) {
+        return assignmentRepository.findById(assignmentId).orElse(null);
+    }
 }

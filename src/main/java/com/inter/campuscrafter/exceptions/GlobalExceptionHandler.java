@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
             errorDetail.setProperty("description", "You are not authorized to access this resource");
         }
 
-        if (exception instanceof CourseNotFoundException) {
+        if (exception instanceof NotFoundException) {
             errorDetail = ProblemDetail.forStatusAndDetail(HttpStatusCode.valueOf(404), exception.getMessage());
             errorDetail.setProperty("description", exception.getMessage());
         }

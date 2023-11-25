@@ -1,7 +1,7 @@
 package com.inter.campuscrafter.config;
 
 import com.inter.campuscrafter.entities.Student;
-import com.inter.campuscrafter.entities.UserProfile;
+import com.inter.campuscrafter.entities.User;
 import com.inter.campuscrafter.entities.UserRole;
 import com.inter.campuscrafter.repositories.interfaces.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -21,11 +20,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Check if the user already exists
         String defaultAdminEmail = "default.admin@example.com";
         if (userRepository.findByEmail(defaultAdminEmail).isEmpty()) {
-            // Create a new user and save it
-            UserProfile defaultUser = new UserProfile();
+            User defaultUser = new User();
             defaultUser.setName("Default Admin");
             defaultUser.setEmail(defaultAdminEmail);
             defaultUser.setPassword(passwordEncoder.encode("password"));
@@ -36,8 +33,7 @@ public class DataInitializer implements CommandLineRunner {
 
         String defaultTeacherEmail = "default.teacher@example.com";
         if (userRepository.findByEmail(defaultTeacherEmail).isEmpty()) {
-            // Create a new user and save it
-            UserProfile defaultUser = new UserProfile();
+            User defaultUser = new User();
             defaultUser.setName("Default Teacher");
             defaultUser.setEmail(defaultTeacherEmail);
             defaultUser.setPassword(passwordEncoder.encode("password"));
@@ -48,7 +44,6 @@ public class DataInitializer implements CommandLineRunner {
 
         String defaultStudentEmail = "default.student@example.com";
         if (userRepository.findByEmail(defaultStudentEmail).isEmpty()) {
-            // Create a new user and save it
             Student defaultUser = new Student();
             defaultUser.setName("Default Student");
             defaultUser.setEmail(defaultStudentEmail);

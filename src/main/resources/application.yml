@@ -4,3 +4,8 @@ spring:
       host: localhost
       port: 27017
       database: campus-crafter
+
+security:
+  jwt:
+    secret-key: verystrongsecretkey
+    expiration-time: 3600000

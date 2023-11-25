@@ -1,4 +1,4 @@
-package com.inter.campuscrafter.dto;
+package com.inter.campuscrafter.dtos;
 
 import lombok.Data;
 

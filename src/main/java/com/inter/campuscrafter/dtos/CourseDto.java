@@ -1,4 +1,4 @@
-package com.inter.campuscrafter.dto;
+package com.inter.campuscrafter.dtos;
 
 import com.inter.campuscrafter.entities.CourseStatus;
 import lombok.Data;
