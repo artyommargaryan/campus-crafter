@@ -7,5 +7,5 @@ spring:
 
 security:
   jwt:
-    secret-key: verystrongsecretkey
+    secret-key: veryStrongSecretKey
     expiration-time: 3600000
